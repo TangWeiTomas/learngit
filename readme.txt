@@ -4,8 +4,4 @@ hello
 Git has a mutable index called stage.
 1111111122222222
 My stupid boss still prefers SVN.
-<<<<<<< HEAD
-Creating a new branch is quick and simple.
-=======
-Creating a new branch is quick AND simple.
->>>>>>> feature1
+Creating a new branch
