@@ -1,0 +1,32 @@
+LIBSOCKET= libsocketudp.so
+LIBSOCKET_OBJ=libsocketudp.o
+
+BUILD_PATH=$(shell pwd)
+OBJ_PATH=$(BUILD_PATH)/../../project/files
+
+
+ifeq ($(ARCH),mips)
+		CC=mipsel-openwrt-linux-gcc
+else
+		CC=gcc
+endif
+
+
+all: clean $(LIBSOCKET) libsocketTest install 
+	@echo "compiled"
+
+%.o:%.c
+	$(CC) -shared -fPIC -c -o $@ $<
+
+$(LIBSOCKET):$(LIBSOCKET_OBJ)
+	$(CC) -shared -fPIC  -o $@ $^
+
+libsocketTest:libsocketTest.c
+	$(CC) -o $@ $^ -L. -lsocketudp 
+
+install:
+	cp -r $(LIBSOCKET) $(OBJ_PATH)/lib
+	cp -r *.h $(OBJ_PATH)/include
+
+clean:
+	rm -rf $(LIBSOCKET_OBJ) $(LIBSOCKET) libsocketTest

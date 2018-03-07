@@ -1,0 +1,43 @@
+
+PROJ_DIR = .
+PROJECT_FOLDER=../..
+
+INCLUDE = -I$(PROJECT_FOLDER)/ -I$(PROJECT_FOLDER)/framework -I$(PROJECT_FOLDER)/common -I$(PROJECT_FOLDER)/zbSocDriver -I$(PROJECT_FOLDER)/dbManager -I$(PROJECT_FOLDER)/socketDriver 
+
+ifeq ($(ARCH),mips)
+	CC=mipsel-openwrt-linux-gcc
+	LDFLAGS	+= -L$(PROJECT_FOLDER)/common/lib/mips/libcurl/lib
+	LDFLAGS	+= -L$(PROJECT_FOLDER)/common/lib/mips/libevent/lib
+	LDFLAGS += -L$(PROJECT_FOLDER)/common/InfraredCodeBase/
+	INCLUDE += -I$(PROJECT_FOLDER)/common/lib/mips/libcurl/include
+	INCLUDE += -I$(PROJECT_FOLDER)/common/lib/mips/libevent/include
+else
+	CC=gcc
+	LDFLAGS += -L$(PROJECT_FOLDER)/common/lib/x86/libcurl/lib
+	LDFLAGS += -L$(PROJECT_FOLDER)/common/lib/x86/libevent/lib
+	LDFLAGS += -L$(PROJECT_FOLDER)/common/InfraredCodeBase/
+	INCLUDE += -I$(PROJECT_FOLDER)/common/lib/x86/libcurl/include
+	INCLUDE += -I$(PROJECT_FOLDER)/common/lib/x86/libevent/include
+endif
+
+DIR = $(shell pwd) 
+SRCS =$(notdir $(foreach dir,$(DIR),$(wildcard $(dir)/*.c)))
+OBJS = $(SRCS:%.c=%.o)
+
+export $(CC)
+
+.PHONY:all clean 
+all: libInfraredCodeBase.so
+
+libInfraredCodeBase.so:$(OBJS)
+	@$(CC) -shared -fPIC -o $@ $(OBJS)
+	@cp -r $@ ../../project/files/lib/
+	@rm -rf $(OBJS)
+%.o: %.c 	
+	@echo "Compiling $< into $@"	
+	@$(CC) -c -fPIC $(INCLUDE) $< -o $@
+clean:
+	@rm -rf $(OBJS)  libInfraredCodeBase.so
+	
+
+

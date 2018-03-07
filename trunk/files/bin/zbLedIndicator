@@ -1,0 +1,35 @@
+#!/bin/sh
+
+. /lib/functions/leds.sh
+
+# example zbLedIndicator "wr8305rt:sys" "on"
+
+status_led=$1
+
+if [ $2 == "on" ]; then
+	status_led_on
+elif [ $2 == "off" ]; then
+	status_led_off
+elif [ $2 == "blink" ]; then
+	status_led_blink_slow
+else
+	echo "no devices opterton"
+	return 2
+fi
+
+#if [ -e /sys/class/leds/zbserver/brightness ]; then
+#	if [ $1 == "on" ]; then
+#		echo "Service On"
+#		echo 1 > /sys/class/leds/zbserver/brightness
+#		return 1
+#	else	
+#		echo "Service Off"
+#		echo 0 > /sys/class/leds/zbserver/brightness
+#		return 0
+#	fi
+#else
+#	echo "no found leds devices"
+#	return 2
+#fi
+
+

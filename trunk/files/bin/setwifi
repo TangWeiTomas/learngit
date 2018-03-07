@@ -1,0 +1,117 @@
+#!/bin/sh
+
+
+#line=`iwinfo wlan0 scan | grep 'Address\|SSID\|Mode\|Channel\|Encryption`
+#line=`iwinfo wlan0 scan` 
+#echo $line
+
+#count=$(echo "$line" | grep "Address:" | wc -l)
+
+#for i in `seq $count`
+#do
+#	str=${line##*Cell}
+#	objdata=$(echo "$str" | fgrep "$ussid")
+##	if [ "$objdata" ];then
+#		echo $str
+#	fi
+#	line=${line%Cell*}
+#done
+
+def_get_wifi_info(){
+	local ssid=$1
+	local line=`iwinfo ra0 scan`
+	local count=$(echo "$line" | grep "Address:" | wc -l)
+	for index in `seq $count`
+	do
+		str=${line##*Cell}
+		objdata=$(echo "$str" | fgrep "$ussid")
+		if [ "$objdata" ];then
+			echo "$str"
+		fi
+		line=${line%Cell*}
+	done
+	echo 'None'
+}
+
+def_pars_wifi_info(){
+	local wifi=$1
+	local channel= echo $wifi |awk '{print $1}'
+	echo $channel
+}
+
+def_get_wifi_Channel(){
+	local wifi=$1
+	str=${wifi##*Channel: }
+	line=${str%Signal:*}
+	echo "$line"|sed s/[[:space:]]//g
+}
+
+def_get_wifi_Enc(){
+	local wifi=$1
+	local result=""
+	str=${wifi##*Encryption: }
+	if [ "$str" ];then
+		result=$(echo $str | fgrep "WPA/WPA2")
+		if [ "$result" ];then
+			echo "psk2"
+		fi
+		result=$(echo $str | fgrep "WPA PSK")
+		if [ "$result" ];then
+			echo "psk"
+		fi
+		
+		result=$(echo $str | fgrep "WEP")
+		if [ "$result" ];then
+			echo "wep-open"
+		fi
+		
+		result=$(echo $str | fgrep "none")
+		if [ "$result" ];then
+			echo "none"
+		fi
+	fi
+}
+
+
+if [ -z "$1" -o -z "$2" ];then
+	echo "FeiXueKJ Wireless-Wan tool"
+	echo "Pls specify ssid and passwd,use this tool like:setwifi ssid passwd"
+	exit 2
+else
+	echo "FeiXueKJ wireless-Wan tools"
+	ussid=$1
+	upass=$2
+fi
+
+result=`def_get_wifi_info $ussid`
+#echo $result
+
+if [ "$result"x != "None"x ];then
+	channel=$(def_get_wifi_Channel "$result")
+
+	security=$(def_get_wifi_Enc "$result")
+	echo "$channel"
+	echo "$security"
+	
+	uci set wireless.radio0.channel="$channel"
+	uci set wireless.sta="wifi-iface"
+	uci set wireless.sta.device="radio0"
+	uci set wireless.sta.ifname="apcli0"
+	uci set wireless.sta.network="wwan"
+	uci set wireless.sta.mode="sta"
+	uci set wireless.sta.ssid="$ussid"
+	uci set wireless.sta.encryption="$security"
+
+	if [ "$security"x != "none"x ];then
+		uci set wireless.sta.key="$upass"
+	fi
+
+	uci set wireless.sta.disabled="0"
+	uci set wireless.ap.disabled="0"
+	uci commit wireless
+#	ifup wan lan wwan
+	wifi
+else
+	echo "can not found WIFI with ssid $ussid"
+fi
+

@@ -1,0 +1,21 @@
+
+config gateway 'airkiss'
+	option config 'true'
+
+config gateway 'server'
+	option addr 'smart.feixuekj.cn'
+	option port '9992'
+	option log_ip '139.224.68.72'
+	option log_port '8080'
+	
+config gateway 'wifi'
+	option wireless 'false'
+
+config gateway 'binding'
+	option bind 'false'
+	
+config gateway 'version'
+	option Coordinator '3.4'
+	
+#config gateway 'logging'
+#option logurl 'http://139.224.68.72:8080/FXMobiServer/gateway/addInfo'

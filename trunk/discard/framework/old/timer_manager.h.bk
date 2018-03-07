@@ -1,0 +1,72 @@
+#ifndef __TIMER_MANAGER_H__
+#define __TIMER_MANAGER_H__
+
+/******************************************************************************
+ * Includes
+ *****************************************************************************/
+#include <stdint.h>
+#include <stdbool.h>
+#include <sys/time.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include "Types.h"
+#include "queue.h"
+#include "Timer_utils.h"
+#include "LogUtils.h"
+
+
+/******************************************************************************
+ * Constants
+ *****************************************************************************/
+
+
+/******************************************************************************
+ * Types
+ *****************************************************************************/
+typedef enum
+{
+    TIMER_MANAGER_STOP=0,
+    TIMER_MANAGER_START
+} TimerManagerState;
+
+//任务描述
+typedef struct tm_timer_t
+{
+    uint32_t taskid;
+    uint64_t m_interval;
+    struct timeval m_endtime;
+	tu_evtimer_t timing_task_timer;
+
+    TAILQ_ENTRY(tm_timer_t) entry_;
+} tm_timer_t;
+
+typedef enum
+{
+    ONCE = false,
+    CIRCLE  = true
+} TimerType_e;
+
+
+//定时器管理
+typedef struct tm_timer_mgr_t
+{
+    TimerManagerState m_state;
+    TAILQ_HEAD(,tm_timer_t) list_;
+} tm_timer_mgr_t;
+
+/******************************************************************************
+ * Globals
+ *****************************************************************************/
+
+/******************************************************************************
+ * Function Prototypes
+ *****************************************************************************/
+ 
+bool tm_timer_init(void);
+void tm_timer_manager_task_stop(void);
+void tm_timer_manager_task_start(void);
+bool tm_timer_remove(tm_timer_t * task);
+bool tm_timer_add(tm_timer_t *task, uint64_t milliseconds, bool continious, timer_handler_cb_t timer_handler_cb, void * timer_handler_arg);
+int tm_timer_reset(tm_timer_t *task, uint64_t milliseconds, bool continious);
+
+#endif

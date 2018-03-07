@@ -1,0 +1,128 @@
+#include "timer_manager.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+#define TIMER_MGR_PACKET_INTERVAL_TIME     SecTime(120)      //队列管理10分钟维护一次
+
+/******************************************************************************
+ * Globals
+ *****************************************************************************/
+tm_timer_mgr_t *pTm_timerMgr = NULL;
+/*
+bool tm_timer_add(tm_timer_t *task, uint64_t milliseconds, bool continious, timer_handler_cb_t timer_handler_cb, void * timer_handler_arg)
+{
+	LOG("tm_timer_add++\n");
+
+    if(tu_set_evtimer_realtime(&task->timing_task_timer,milliseconds,continious,timer_handler_cb,timer_handler_arg)==-1)
+    {
+    	LOG_PRINT("tu_set_timer_realtime failed\n");
+        return false;
+    }
+
+    return true;
+}
+
+bool tm_timer_remove(tm_timer_t * task)
+{
+	LOG("tm_timer_remove\n");
+	
+	tu_kill_evtimer(&task->timing_task_timer);
+    
+    //TAILQ_REMOVE(&(pTm_timerMgr->list_),task,entry_);
+    free(task);
+	return true;
+}
+
+int tm_timer_reset(tm_timer_t *task, uint64_t milliseconds, bool continious)
+{
+	LOG_PRINT("tm_timer_reset\n");
+	
+	int ret = tu_reset_evtimer(&task->timing_task_timer,milliseconds,continious);
+   
+    return ret;
+}
+/*
+bool tm_timer_init(void)
+{
+	LOG_PRINT("tm_timer_init\n");
+
+    if(pTm_timerMgr==NULL)
+    {
+        pTm_timerMgr= malloc(sizeof(tm_timer_mgr_t));
+        if(pTm_timerMgr == NULL)
+        {
+            LOG_PRINT("malloc failed\n");
+            return false;
+        }
+        memset(pTm_timerMgr,0,sizeof(tm_timer_mgr_t));
+    }
+
+    pTm_timerMgr->m_state = TIMER_MANAGER_START;
+    TAILQ_INIT(&(pTm_timerMgr->list_));
+    return true;
+}
+/*
+static void tm_timer_manager_task_handler(tm_timer_t *timerMgrtask)
+{
+	LOG_PRINT("tm_timer_manager_task_handler\n");
+
+    tm_timer_t *item = NULL;
+    //当前定时器管理任务被关闭
+    if(timerMgrtask->timing_task_timer.in_use == false)
+    {
+        tm_timer_remove(timerMgrtask);
+        tm_timer_manager_task_start();
+    }
+
+	LOG_PRINT("del all unuse timer\n");
+	
+    TAILQ_FOREACH(item, &(pTm_timerMgr->list_), entry_)
+    {
+        if(item->timing_task_timer.in_use==false)
+        {
+            tm_timer_remove(item);
+        }
+    }
+}
+/*
+void tm_timer_manager_task_start(void)
+{
+	LOG_PRINT("tm_timer_manager_task_start\n");
+    tm_timer_t *timerMgrtask = malloc(sizeof(tm_timer_t));
+    if(timerMgrtask == NULL)
+    {
+        LOG_PRINT("malloc failed\n");
+        return ;
+    }
+    
+    memset(timerMgrtask,0,sizeof(tm_timer_t));
+
+    if(tm_timer_add(timerMgrtask,TIMER_MGR_PACKET_INTERVAL_TIME,CIRCLE,(timer_handler_cb_t)tm_timer_manager_task_handler,timerMgrtask)==false)
+    {
+        free(timerMgrtask);
+        return ;
+    }
+}
+
+void tm_timer_manager_task_stop(void)
+{
+	LOG_PRINT("tm_timer_manager_task_stop\n");
+    tm_timer_t *item = NULL;
+    if(pTm_timerMgr==NULL)
+    {
+        LOG_PRINT("timer manager is stop\n");
+        return;
+    }
+
+    TAILQ_FOREACH(item, &(pTm_timerMgr->list_), entry_)
+    {
+        tm_timer_remove(item);
+    }
+
+    free(pTm_timerMgr);
+    pTm_timerMgr = NULL;
+}
+*/
